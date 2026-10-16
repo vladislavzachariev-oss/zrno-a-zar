@@ -615,6 +615,7 @@ const V = {
   french: { g: $('#vFrench'), water: $('#fW'), crust: $('#fCrust'), pl: $('#fPl') }
 };
 let method = 'v60', brewT = 0, running = false, lastTick = 0, preview = null;
+const SPEED = 10;   // ukázka: minuta přípravy uběhne za 6 s, jinak se na to nikdo nedívá
 const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 const brewCol = gsap.utils.interpolate(['#d39a62', '#9a5a2e', '#5a3018', '#2e170b']);
 function setMethod(m) {
@@ -694,7 +695,7 @@ function startTimer() {
 function stopTimer() { running = false; timerBtn.textContent = brewT > 0 && brewT < METHODS[method].time ? 'Pokračovat' : 'Spustit'; if (dropAnim) dropAnim.pause(); }
 gsap.ticker.add(() => {
   if (!running) return;
-  const now = performance.now(); brewT = Math.min(METHODS[method].time, brewT + (now - lastTick) / 1000); lastTick = now;
+  const now = performance.now(); brewT = Math.min(METHODS[method].time, brewT + (now - lastTick) / 1000 * SPEED); lastTick = now;
   drawBrew();
   if (brewT >= METHODS[method].time) { running = false; timerBtn.textContent = 'Znovu'; drawBrew(); toast('Hotovo. Dobrou chuť.'); }
 });
