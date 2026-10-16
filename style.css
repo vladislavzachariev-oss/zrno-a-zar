@@ -43,7 +43,7 @@ em{font-style:italic}
 
 /* ---------- hero ---------- */
 .hero{position:relative;height:250vh}
-.hero__stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
+.hero__stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden;background:var(--paper)}
 .hero__gl,.hero__fallback{position:absolute;inset:0;width:100%;height:100%}
 .hero__fallback{object-fit:cover;object-position:62% 50%;display:none}
 @media (max-aspect-ratio:9/10){.hero__fallback{object-position:50% 50%}}
@@ -100,10 +100,7 @@ em{font-style:italic}
 .path__img{position:relative;aspect-ratio:1/1;border-radius:50%;overflow:hidden;max-height:76vh;justify-self:center;width:min(100%,76vh);box-shadow:0 40px 90px -50px rgba(42,26,18,.55)}
 .path__img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform:scale(1.85);clip-path:circle(0% at 50% 50%)}
 .path__img img.is-on,.path__img img:first-child{clip-path:circle(75% at 50% 50%)}
-.path__img img:last-of-type{object-position:79% 50%}
 .path__img::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(42,26,18,.1),inset 0 0 70px rgba(42,26,18,.1);pointer-events:none;z-index:1}
-.path__bar{z-index:2;position:absolute;left:18%;right:18%;bottom:7%;height:3px;border-radius:3px;background:rgba(42,26,18,.14);overflow:hidden}
-.path__bar i{display:block;height:100%;width:0;background:var(--terra)}
 
 /* ---------- beans (products) ---------- */
 .beans{position:relative;padding:clamp(100px,16vh,170px) var(--pad);background:var(--paper-2);overflow:hidden;transition:background .6s}
@@ -205,7 +202,7 @@ em{font-style:italic}
   .cart span{display:none}
   .cart{padding:6px}
   .hero{height:220vh}
-  .hero__copy{left:16px;right:16px;top:auto;bottom:34px;transform:none;max-width:none}
+  .hero__copy{left:16px;right:16px;top:auto;bottom:34px;bottom:calc(34px + 100lvh - 100svh);transform:none;max-width:none}
   .hero__title{font-size:clamp(46px,13vw,60px)}
   .hero__lead{font-size:15px;max-width:330px}
   .hero__cta{margin-top:22px}

@@ -10,6 +10,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });   // lišta prohlížeče na telefonu nesmí přeměřovat stránku
 
 /* ---------- smooth scroll ---------- */
 const lenis = new Lenis({ duration: reduce ? 0 : 1.15, smoothWheel: !reduce });
@@ -362,7 +363,10 @@ if (glOk) {
   loadTex(SRC[srcKey].src()).then(() => { resize(); }).catch(() => { document.documentElement.classList.add('no-gl'); state.gl = false; gl = null; });
 } else { document.documentElement.classList.add('no-gl'); }
 computeMap(); makeBeans();
-let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => {
+// na telefonu se při scrollu schovává lišta prohlížeče a mění se jen výška: tehdy nic nepřeměřovat, jinak stránka dole poskočí
+let rT, lastW = innerWidth; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => {
+  if (coarse && innerWidth === lastW) return;
+  lastW = innerWidth;
   const k = isPortrait() ? 'port' : 'land';
   if (k !== srcKey) {   // otočení telefonu: jiná fotka
     srcKey = k; IMG = { w: SRC[k].w, h: SRC[k].h }; CUP = SRC[k].cup;
@@ -502,10 +506,10 @@ setHeat(0);
 /* =========================================================
    CESTA — od zrna k šálku
    ========================================================= */
-const pathImgs = $$('#pathImg img'), stepsLi = $$('#steps li'), pathBar = $('#pathBar');
+const pathImgs = $$('#pathImg img'), stepsLi = $$('#steps li');
 pathImgs.forEach((im, i) => {
   im.classList.remove('is-on');
-  gsap.set(im, { clipPath: i === 0 ? 'circle(75% at 50% 50%)' : 'circle(0% at 50% 50%)', scale: i === 3 ? 1.35 : 1.22 });
+  gsap.set(im, { clipPath: i === 0 ? 'circle(75% at 50% 50%)' : 'circle(0% at 50% 50%)', scale: i === 3 ? 1 : 1.22 });
 });
 let curStep = 0;
 function setPath(p) {
@@ -516,11 +520,10 @@ function setPath(p) {
       const k = smooth(clamp((s - (i - .5)) / .55, 0, 1));
       im.style.clipPath = `circle(${(k * 75).toFixed(2)}% at 50% 50%)`;
     }
-    im.style.transform = `scale(${i === 3 ? 1.35 : 1.22}) rotate(${i === 3 ? 0 : rot.toFixed(2)}deg)`;
+    im.style.transform = `scale(${i === 3 ? 1 : 1.22}) rotate(${i === 3 ? 0 : rot.toFixed(2)}deg)`;
   });
   const idx = clamp(Math.round(s - .05), 0, 3);
   if (idx !== curStep) { curStep = idx; stepsLi.forEach((li, i) => li.classList.toggle('is-on', i === idx)); }
-  pathBar.style.width = (p * 100).toFixed(2) + '%';
   state.path = +p.toFixed(3); state.step = idx;
 }
 ScrollTrigger.create({
