@@ -504,7 +504,7 @@ setHeat(0);
 const pathImgs = $$('#pathImg img'), stepsLi = $$('#steps li'), pathBar = $('#pathBar');
 pathImgs.forEach((im, i) => {
   im.classList.remove('is-on');
-  gsap.set(im, { clipPath: i === 0 ? 'circle(75% at 50% 50%)' : 'circle(0% at 50% 50%)', scale: i === 3 ? 1.6 : 1.22 });
+  gsap.set(im, { clipPath: i === 0 ? 'circle(75% at 50% 50%)' : 'circle(0% at 50% 50%)', scale: i === 3 ? 1.35 : 1.22 });
 });
 let curStep = 0;
 function setPath(p) {
@@ -515,7 +515,7 @@ function setPath(p) {
       const k = smooth(clamp((s - (i - .5)) / .55, 0, 1));
       im.style.clipPath = `circle(${(k * 75).toFixed(2)}% at 50% 50%)`;
     }
-    im.style.transform = `scale(${i === 3 ? 1.6 : 1.22}) rotate(${i === 3 ? 0 : rot.toFixed(2)}deg)`;
+    im.style.transform = `scale(${i === 3 ? 1.35 : 1.22}) rotate(${i === 3 ? 0 : rot.toFixed(2)}deg)`;
   });
   const idx = clamp(Math.round(s - .05), 0, 3);
   if (idx !== curStep) { curStep = idx; stepsLi.forEach((li, i) => li.classList.toggle('is-on', i === idx)); }
