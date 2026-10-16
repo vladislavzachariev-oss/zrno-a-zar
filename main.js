@@ -97,9 +97,13 @@ uniform vec2 uRes, uM, uWind;
 uniform float uT, uS, uAsp, uMOn;
 uniform vec3 uCup;      // x y r
 uniform vec4 uRip[6];   // x y t0 strength
-float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float h(vec2 p){p=fract(p*vec2(233.34,851.73));p+=dot(p,p+23.45);return fract(p.x*p.y);}   // zrno: bez sin(), ten se na telefonech rozpadá
+/* mřížkový hash v přesné celočíselné matematice: roh sdílený dvěma buňkami musí mít v obou stejnou hodnotu,
+   jinak telefony (fúzované násobení a sčítání) kreslí na hranách buněk čáry, které s párou jedou přes obraz */
+float pm(float x){return mod((x*34.+1.)*x,289.);}
+float hv(vec2 i){i=mod(i,289.);return pm(pm(pm(i.x)+i.y))/289.;}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
-  return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+  return mix(mix(hv(i),hv(i+vec2(1,0)),f.x),mix(hv(i+vec2(0,1)),hv(i+vec2(1,1)),f.x),f.y);}
 float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return s;}
 void main(){
   vec2 uv0=uMap.xy+v*uMap.zw;
@@ -161,7 +165,7 @@ void main(){
   col=mix(col,vec3(1.,.985,.96),wisp*.42);
 
   // zrno a vinětace
-  float g=h(v*uRes+fract(uT)*91.)-.5;
+  float g=h(v*uRes+fract(uT*7.)*91.)-.5;
   col+=g*.028;
   vec2 vv=v-.5; col*=1.-dot(vv,vv)*mix(.32,.9,uS);
   gl_FragColor=vec4(col,1.);
