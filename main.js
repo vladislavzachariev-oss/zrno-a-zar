@@ -353,7 +353,8 @@ ScrollTrigger.create({
     nav.classList.toggle('is-dark-hero', p > .55 && p < 1);
   }
 });
-ScrollTrigger.create({ trigger: hero, start: 'top top', end: 'bottom top', onToggle: s => { heroVisible = s.isActive; } });
+// 'top bottom': nahoře na stránce (scroll 0) je hero pořád „vidět“ — s 'top top' tam po návratu zamrzl
+ScrollTrigger.create({ trigger: hero, start: 'top bottom', end: 'bottom top', onToggle: s => { heroVisible = s.isActive; } });
 
 const glOk = initGL();
 if (glOk) {
