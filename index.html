@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zrno a žár — malá pražírna kávy</title>
+<meta name="description" content="Ukázka stránky malé pražírny: šálek, ze kterého stoupá pára, křivka pražení, cesta od zeleného zrna k šálku a průvodce přípravou. Smyšlená značka; Vladislav Zachariev, Whyte Lynx.">
+<meta name="theme-color" content="#f1e9dc">
+<meta name="robots" content="noindex">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Zrno a žár — ukázka stránky od Whyte Lynx">
+<meta property="og:description" content="Pražírna kávy: pára nad šálkem, křivka pražení, od zrna k šálku, průvodce přípravou. Smyšlená značka, ukázka práce Whyte Lynx.">
+<meta property="og:image" content="https://vladislavzachariev-oss.github.io/zrno-a-zar/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://vladislavzachariev-oss.github.io/zrno-a-zar/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Bricolage+Grotesque:opsz,wght@12..96,300..700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/salek.webp" media="(min-aspect-ratio: 9/10) and (min-width: 700px)">
+<link rel="preload" as="image" href="img/salek-v.webp" media="(max-aspect-ratio: 9/10)">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top">Zrno <i>a</i> žár</a>
+  <nav class="nav__links" aria-label="Hlavní">
+    <a href="#zar">Jak pražíme</a>
+    <a href="#kavy">Kávy</a>
+    <a href="#priprava">Příprava</a>
+  </nav>
+  <a class="cart" href="#kavy" aria-label="Košík"><span>Košík</span><b id="cartN">0</b></a>
+</header>
+
+<main id="top">
+
+  <!-- 1. Šálek -->
+  <section class="hero" id="hero" aria-label="Úvod">
+    <div class="hero__stage">
+      <canvas class="hero__gl" id="gl" aria-hidden="true"></canvas>
+      <picture><source media="(max-aspect-ratio: 9/10)" srcset="img/salek-v.webp"><img class="hero__fallback" src="img/salek.webp" alt="" aria-hidden="true"></picture>
+      <div class="hero__copy" id="heroCopy">
+        <p class="eyebrow">Malá pražírna · pražíme každé úterý</p>
+        <h1 class="hero__title">Káva, která<br>voní <em>až sem.</em></h1>
+        <p class="hero__lead">Pražíme v malých várkách a posíláme nejpozději dva dny po pražení. Zrno, o kterém víme, odkud je.</p>
+        <div class="hero__cta">
+          <a class="btn" href="#kavy">Vybrat kávu</a>
+          <span class="tap"><i></i>Ťukněte do šálku</span>
+        </div>
+      </div>
+      <div class="hero__dark" id="heroDark" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- 2. Žár: křivka pražení -->
+  <section class="heat" id="zar" aria-label="Jak pražíme">
+    <div class="heat__pin">
+      <div class="heat__text">
+        <p class="kicker">Jak pražíme</p>
+        <p class="heat__big" id="heatBig">Každé zrno<br>projde ohněm<br><em>jen jednou.</em></p>
+        <p class="heat__stage" id="heatStage">Sušení</p>
+      </div>
+      <figure class="curve">
+        <div class="curve__read">
+          <p><b id="tTemp">20</b><span>°C v zrnu</span></p>
+          <p><b id="tTime">0:00</b><span>minut v bubnu</span></p>
+        </div>
+        <svg viewBox="0 0 640 320" id="curveSvg" aria-label="Křivka pražení: teplota zrna v čase">
+          <g class="curve__grid"></g>
+          <path class="curve__ghost" id="curveGhost"/>
+          <path class="curve__line" id="curveLine"/>
+          <g class="curve__marks"></g>
+          <circle class="curve__dot" id="curveDot" r="6"/>
+        </svg>
+        <figcaption>Teplota zrna během jedné várky. Na stejné křivce pražíme každou várku znovu.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 3. Od zrna k šálku -->
+  <section class="path" id="cesta" aria-label="Od zrna k šálku">
+    <div class="path__pin">
+      <div class="path__steps">
+        <p class="kicker">Od zrna k šálku</p>
+        <ol id="steps">
+          <li class="is-on"><b>01</b><h3>Zelené zrno</h3><p>Přijede v jutovém pytli, voní po seně a hrachu. Káva z něj ještě není.</p></li>
+          <li><b>02</b><h3>Žár</h3><p>Dvanáct minut v bubnu. Cukry karamelizují, zrno praskne a dostane barvu.</p></li>
+          <li><b>03</b><h3>Mletí</h3><p>Až těsně před přípravou. Mletá káva ztrácí vůni během minut, ne dní.</p></li>
+          <li><b>04</b><h3>Šálek</h3><p>Voda kolem 94 °C, trochu trpělivosti a je to tady.</p></li>
+        </ol>
+      </div>
+      <div class="path__img" id="pathImg">
+        <img src="img/zelena.webp" alt="Miska zelených nepražených zrn" class="is-on">
+        <img src="img/prazena.webp" alt="Tatáž miska s čerstvě upraženými zrny" loading="lazy">
+        <img src="img/mleta.webp" alt="Tatáž miska s čerstvě namletou kávou" loading="lazy">
+        <img src="img/salek.webp" alt="Šálek filtrované kávy shora" loading="lazy">
+        <div class="path__bar"><i id="pathBar"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Kávy -->
+  <section class="beans" id="kavy" aria-label="Kávy">
+    <header class="beans__head">
+      <p class="kicker">Kávy tohoto týdne</p>
+      <h2>Tři zrna,<br><em>tři chutě.</em></h2>
+    </header>
+    <div class="bags">
+      <article class="bag" style="--c:#c4532d;--c2:#f3d7c8">
+        <div class="bag__pic"><div class="bag__obj"><img src="img/sacek.webp" alt="" width="600" height="912" loading="lazy"><div class="bag__label"><small>Zrno a žár</small><b>Etiopie</b><span>Guji · 250 g</span></div></div></div>
+        <h3>Etiopie Guji</h3>
+        <p class="bag__notes">borůvka · jasmín · černý čaj</p>
+        <dl class="bag__meta"><div><dt>Pražení</dt><dd class="roast" data-r="1"><i></i><i></i><i></i><i></i><i></i></dd></div><div><dt>Zpracování</dt><dd>sušená v celku</dd></div></dl>
+        <div class="bag__row"><div class="chips" role="radiogroup" aria-label="Mletí"><button type="button" class="is-on">Zrno</button><button type="button">Filtr</button><button type="button">Espresso</button></div><button type="button" class="add">Do košíku</button></div>
+      </article>
+      <article class="bag" style="--c:#4f6b3a;--c2:#dfe6cf">
+        <div class="bag__pic"><div class="bag__obj"><img src="img/sacek.webp" alt="" width="600" height="912" loading="lazy"><div class="bag__label"><small>Zrno a žár</small><b>Kolumbie</b><span>Huila · 250 g</span></div></div></div>
+        <h3>Kolumbie Huila</h3>
+        <p class="bag__notes">červené jablko · panela · kakao</p>
+        <dl class="bag__meta"><div><dt>Pražení</dt><dd class="roast" data-r="2"><i></i><i></i><i></i><i></i><i></i></dd></div><div><dt>Zpracování</dt><dd>praná</dd></div></dl>
+        <div class="bag__row"><div class="chips" role="radiogroup" aria-label="Mletí"><button type="button" class="is-on">Zrno</button><button type="button">Filtr</button><button type="button">Espresso</button></div><button type="button" class="add">Do košíku</button></div>
+      </article>
+      <article class="bag" style="--c:#2a1a12;--c2:#dcc3a3">
+        <div class="bag__pic"><div class="bag__obj"><img src="img/sacek.webp" alt="" width="600" height="912" loading="lazy"><div class="bag__label"><small>Zrno a žár</small><b>Brazílie</b><span>Cerrado · 250 g</span></div></div></div>
+        <h3>Brazílie Cerrado</h3>
+        <p class="bag__notes">lískový oříšek · mléčná čokoláda · karamel</p>
+        <dl class="bag__meta"><div><dt>Pražení</dt><dd class="roast" data-r="4"><i></i><i></i><i></i><i></i><i></i></dd></div><div><dt>Zpracování</dt><dd>sušená na slunci</dd></div></dl>
+        <div class="bag__row"><div class="chips" role="radiogroup" aria-label="Mletí"><button type="button" class="is-on">Zrno</button><button type="button">Filtr</button><button type="button">Espresso</button></div><button type="button" class="add">Do košíku</button></div>
+      </article>
+    </div>
+    <div class="flying" id="flying" aria-hidden="true"></div>
+  </section>
+
+  <!-- 5. Příprava -->
+  <section class="brew" id="priprava" aria-label="Průvodce přípravou">
+    <div class="brew__left">
+      <p class="kicker">Příprava</p>
+      <h2>Kolik kávy<br><em>na kolik vody?</em></h2>
+      <div class="tabs" role="tablist" aria-label="Způsob přípravy" id="tabs">
+        <button type="button" role="tab" aria-selected="true" data-m="v60">V60</button>
+        <button type="button" role="tab" aria-selected="false" data-m="aero">AeroPress</button>
+        <button type="button" role="tab" aria-selected="false" data-m="french">French press</button>
+      </div>
+      <label class="slider"><span>Vody</span><input type="range" id="water" min="150" max="900" step="10" value="300"><output id="waterOut">300 ml</output></label>
+      <div class="dose">
+        <p><b id="doseG">19</b><span>g kávy</span></p>
+        <p><b id="doseR">1 : 16</b><span>poměr</span></p>
+        <p><b id="doseT">3:00</b><span>celkem</span></p>
+      </div>
+      <p class="grind">Mletí: <span id="grind">středně jemně, jako mořská sůl</span></p>
+    </div>
+    <div class="brew__right">
+      <svg class="dripper" id="dripper" viewBox="0 -24 300 404" aria-hidden="true">
+        <defs>
+          <clipPath id="coneClip"><path d="M40 60 L260 60 L172 196 L128 196 Z"/></clipPath>
+          <clipPath id="potClip"><path d="M70 250 h160 v96 a26 26 0 0 1 -26 26 h-108 a26 26 0 0 1 -26 -26 z"/></clipPath>
+          <clipPath id="aeroClip"><rect x="111" y="40" width="78" height="190"/></clipPath>
+          <clipPath id="mugClip"><path d="M86 262 h128 v84 a26 26 0 0 1 -26 26 h-76 a26 26 0 0 1 -26 -26 z"/></clipPath>
+          <clipPath id="frClip"><rect x="89" y="173" width="122" height="188" rx="10"/></clipPath>
+        </defs>
+        <g id="vV60">
+          <g clip-path="url(#coneClip)">
+            <rect class="d-water" id="cone" x="0" y="196" width="300" height="0"/>
+            <rect class="d-bed" id="bed" x="0" y="160" width="300" height="40"/>
+          </g>
+          <path class="d-cone" d="M30 52 L270 52 L176 204 L124 204 Z"/>
+          <path class="d-rim" d="M20 52 h260"/>
+          <circle class="d-drop" id="drop" cx="150" cy="214" r="3.2"/>
+          <g clip-path="url(#potClip)"><rect class="d-coffee" id="pot" x="60" y="372" width="180" height="0"/></g>
+          <path class="d-pot" d="M70 236 h160 v110 a26 26 0 0 1 -26 26 h-108 a26 26 0 0 1 -26 -26 z"/>
+          <path class="d-handle" d="M230 262 c32 0 32 64 0 64"/>
+        </g>
+        <g id="vAero" hidden>
+          <g clip-path="url(#aeroClip)"><rect class="d-water" id="aW" x="100" y="230" width="100" height="0"/></g>
+          <g id="aPl" opacity="0"><rect class="d-plunger" x="115" y="-40" width="70" height="80" rx="3"/><path class="d-rim" d="M100 -40 h100"/></g>
+          <rect class="d-cone" x="108" y="36" width="84" height="196" rx="4"/>
+          <path class="d-rim" d="M94 233 h112"/>
+          <circle class="d-drop" id="aDrop" cx="150" cy="242" r="3"/>
+          <g clip-path="url(#mugClip)"><rect class="d-coffee" id="aMug" x="70" y="372" width="160" height="0"/></g>
+          <path class="d-pot" d="M86 248 h128 v98 a26 26 0 0 1 -26 26 h-76 a26 26 0 0 1 -26 -26 z"/>
+          <path class="d-handle" d="M214 274 c30 0 30 56 0 56"/>
+        </g>
+        <g id="vFrench" hidden>
+          <g clip-path="url(#frClip)">
+            <rect id="fW" x="80" y="362" width="140" height="0" fill="#c98a52"/>
+            <rect id="fCrust" x="80" y="362" width="140" height="12" fill="#3a2216"/>
+          </g>
+          <rect class="d-cone" x="86" y="170" width="128" height="194" rx="12"/>
+          <path class="d-handle" d="M214 196 c42 0 42 124 0 124"/>
+          <g id="fPl"><path class="d-rod" d="M150 -4 v180"/><circle class="d-knob" cx="150" cy="-8" r="10"/><path class="d-mesh" d="M93 176 h114"/></g>
+          <path class="d-rim" d="M78 164 h144"/>
+        </g>
+      </svg>
+      <ol class="plan" id="plan"></ol>
+      <div class="timer">
+        <p class="timer__t" id="timerT">0:00</p>
+        <button type="button" class="btn btn--ink" id="timerBtn">Spustit</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p class="foot__word" aria-hidden="true">Zrno <i>a</i> žár</p>
+  <div class="foot__row">
+    <p>Malá pražírna kávy</p>
+    <p>Ukázka · smyšlená značka · Vladislav Zachariev, <a href="https://whytelynx.cz" target="_blank" rel="noopener">Whyte Lynx</a></p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/lenis.min.js"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="main.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "5ae95e24cc924a0e84e28a82659ff3dc"}'></script>
+</body>
+</html>
