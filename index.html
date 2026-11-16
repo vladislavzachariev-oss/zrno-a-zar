@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Bricolage+Grotesque:opsz,wght@12..96,300..700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="img/salek.webp" media="(min-aspect-ratio: 9/10) and (min-width: 700px)">
-<link rel="preload" as="image" href="img/salek-v.webp" media="(max-aspect-ratio: 9/10)">
+<link rel="preload" as="image" href="img/salek-v-otoceny.webp" media="(max-aspect-ratio: 9/10)">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -43,16 +43,16 @@
   <section class="hero" id="hero" aria-label="Úvod">
     <div class="hero__stage">
       <canvas class="hero__gl" id="gl" aria-hidden="true"></canvas>
-      <picture><source media="(max-aspect-ratio: 9/10)" srcset="img/salek-v.webp"><img class="hero__fallback" src="img/salek.webp" alt="" aria-hidden="true"></picture>
-      <div class="hero__copy" id="heroCopy">
-        <p class="eyebrow">Malá pražírna · pražíme každé úterý</p>
-        <h1 class="hero__title">Káva, která<br>voní <em>až sem.</em></h1>
-        <p class="hero__lead">Pražíme v malých várkách a posíláme nejpozději dva dny po pražení. Zrno, o kterém víme, odkud je.</p>
-        <div class="hero__cta">
-          <a class="btn" href="#kavy">Vybrat kávu</a>
-        </div>
-      </div>
+      <picture><source media="(max-aspect-ratio: 9/10)" srcset="img/salek-v-otoceny.webp"><img class="hero__fallback" src="img/salek.webp" alt="" aria-hidden="true"></picture>
       <div class="hero__dark" id="heroDark" aria-hidden="true"></div>
+    </div>
+    <div class="hero__copy" id="heroCopy">
+      <p class="eyebrow">Malá pražírna · pražíme každé úterý</p>
+      <h1 class="hero__title">Káva, která<br>voní <em>až sem.</em></h1>
+      <p class="hero__lead">Pražíme v malých várkách a posíláme nejpozději dva dny po pražení. Zrno, o kterém víme, odkud je.</p>
+      <div class="hero__cta">
+        <a class="btn" href="#kavy">Vybrat kávu</a>
+      </div>
     </div>
   </section>
 

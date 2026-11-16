@@ -35,7 +35,9 @@ const toast = msg => {
 
 /* ---------- nav ---------- */
 const nav = $('#nav');
-const setNav = () => { const h = document.getElementById('hero'); nav.classList.toggle('is-solid', scrollY > h.offsetHeight - innerHeight + 20); };
+// navPaper: lišta dostane papír, dokud pod ní v hero projíždí text (16. 11.: text najížděl na logo)
+let navPaper = false;
+const setNav = () => { const h = document.getElementById('hero'); nav.classList.toggle('is-solid', navPaper || scrollY > h.offsetHeight - innerHeight + 20); };
 addEventListener('scroll', setNav, { passive: true }); setNav();
 
 /* ---------- hero title: words ---------- */
@@ -61,21 +63,23 @@ $$('.w', title).forEach((w, i) => { w.style.transitionDelay = (0.15 + i * 0.07) 
 // dvě fotky: na šířku a na výšku (mobil); střed kávy v uv (y nahoru), poloměr v jednotkách výšky obrázku
 const SRC = {
   land: { src: () => innerWidth < 700 ? 'img/salek-m.webp' : 'img/salek.webp', w: 2400, h: 1340, cup: { x: 0.6152, y: 0.5035, r: 0.166 } },
-  port: { src: () => 'img/salek-v.webp', w: 1080, h: 1935, cup: { x: 0.5043, y: 0.7504, r: 0.1051 } }
+  // na výšku fotka otočená o 180° (záběr shora, tak je to pořád skutečná fotka): šálek dole, nahoře volný papír pro text
+  port: { src: () => 'img/salek-v-otoceny.webp', w: 1080, h: 1935, cup: { x: 0.4957, y: 0.2496, r: 0.1051 }, light: -1 }
 };
 const isPortrait = () => innerWidth / innerHeight < 0.9;
 let srcKey = isPortrait() ? 'port' : 'land';
 let IMG = { w: SRC[srcKey].w, h: SRC[srcKey].h }, CUP = SRC[srcKey].cup;
 const hero = $('#hero'), stage = $('.hero__stage'), canvas = $('#gl');
 const heroCopy = $('#heroCopy'), heroDark = $('#heroDark');
-const state = { heroP: 0, gl: false, ripples: 0 };
+const state = { heroP: 0, dive: 0, gl: false, ripples: 0 };
+const zoomOf = d => Math.pow(9, smooth(d));   // ponor: stejně rychlé přibližování po celou dobu, bez prudkého konce
 
 // screen uv -> image uv mapping (cover s volitelným posunem šálku)
-let map = { ax: 0, ay: 0, bx: 1, by: 1 }, cupScreen = { x: 0, y: 0, r: 0 };
+let map = { ax: 0, ay: 0, bx: 1, by: 1 }, cupScreen = { x: 0, y: 0, r: 0 }, cupHome = { x: 0, y: 0 }, sfHome = { x: .5, y: .5 };
 function computeMap() {
   const vw = stage.clientWidth, vh = stage.clientHeight;
   const portrait = srcKey === 'port';
-  const sf = portrait ? { x: 0.5, y: 0.75 } : { x: vw < 1100 ? 0.66 : 0.64, y: 0.5 };   // kde má šálek být na obrazovce (y nahoru)
+  const sf = portrait ? { x: 0.5, y: 0.27 } : { x: vw < 1100 ? 0.66 : 0.64, y: 0.5 };   // kde má šálek být na obrazovce (y nahoru)
   const fx = CUP.x, fy = CUP.y;
   let k = Math.max(vw / IMG.w, vh / IMG.h);
   k = Math.max(k,
@@ -85,6 +89,17 @@ function computeMap() {
   map.bx = vw / (k * IMG.w); map.by = vh / (k * IMG.h);
   map.ax = fx - sf.x * map.bx; map.ay = fy - sf.y * map.by;
   cupScreen = { x: sf.x * vw, y: (1 - sf.y) * vh, r: CUP.r * IMG.h * k };
+  cupHome = { x: cupScreen.x, y: cupScreen.y }; sfHome = sf;
+  panCup();
+}
+// při ponoru šálek doputuje doprostřed obrazovky; posun jen tak velký, aby fotka pořád kryla celé plátno
+function panCup() {
+  const z = zoomOf(state.dive), e = smooth(state.dive);
+  const tx = lerp(sfHome.x, .5, e), ty = lerp(sfHome.y, .5, e);
+  const sx = clamp(tx, 1 - (1 - CUP.x) * z / map.bx, CUP.x * z / map.bx);
+  const sy = clamp(ty, 1 - (1 - CUP.y) * z / map.by, CUP.y * z / map.by);
+  map.ax = CUP.x - sx * map.bx; map.ay = CUP.y - sy * map.by;
+  cupScreen.x = sx * stage.clientWidth; cupScreen.y = (1 - sy) * stage.clientHeight;
 }
 
 const VERT = `attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
@@ -94,7 +109,7 @@ varying vec2 v;
 uniform sampler2D uTex;
 uniform vec4 uMap;      // ax ay bx by
 uniform vec2 uRes, uM, uWind;
-uniform float uT, uS, uAsp, uMOn;
+uniform float uT, uS, uAsp, uMOn, uLd;
 uniform vec3 uCup;      // x y r
 uniform vec4 uRip[6];   // x y t0 strength
 float h(vec2 p){p=fract(p*vec2(233.34,851.73));p+=dot(p,p+23.45);return fract(p.x*p.y);}   // zrno: bez sin(), ten se na telefonech rozpadá
@@ -108,7 +123,7 @@ float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*n(p);p=p*2.03+vec2(1
 void main(){
   vec2 uv0=uMap.xy+v*uMap.zw;
   // ponor: přiblížení ke středu kávy
-  float z=1.+pow(uS,2.4)*8.;
+  float z=pow(9.,uS*uS*(3.-2.*uS));
   vec2 uv=uCup.xy+(uv0-uCup.xy)/z;
   vec2 asp=vec2(uAsp,1.);
   vec2 dc=(uv-uCup.xy)*asp;               // v jednotkách výšky obrázku
@@ -137,7 +152,7 @@ void main(){
 
   // odlesky na kávě (světlo zprava nahoře)
   col+=vec3(1.,.93,.82)*pow(spec,3.)*.85*inCup;
-  float sheen=smoothstep(.25,.0,length(dc-vec2(.06,.05)))*.05*inCup*(1.-uS);
+  float sheen=smoothstep(.25,.0,length(dc-vec2(.06,.05)*uLd))*.05*inCup*(1.-uS);
   col+=sheen;
 
   // pára — nad šálkem, unášená doprava nahoru, foukání myší ji rozhání
@@ -157,7 +172,7 @@ void main(){
   wisp*=mix(1.,hole,uMOn);
   wisp*=(1.-smoothstep(.55,.95,uS));
   // stín páry vlevo dole (světlo zprava)
-  vec2 sp2=sp+vec2(.05,-.02);
+  vec2 sp2=sp+vec2(.05,-.02)*uLd;
   vec2 q2=sp2*6.-drift*6.;
   float st2=fbm(q2*1.15+vec2(fbm(q2+vec2(t*2.,0.)),fbm(q2+vec2(5.2,1.3-t*2.)))*2.6+vec2(0.,-t*3.));
   float shad=smoothstep(.5,.9,st2)*smoothstep(uCup.z*2.15,uCup.z*.3,length(sp2-vec2(.02,.035)))*(1.-inCup);
@@ -186,7 +201,7 @@ function initGL() {
   const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  ['uTex', 'uMap', 'uRes', 'uM', 'uWind', 'uT', 'uS', 'uAsp', 'uMOn', 'uCup', 'uRip'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+  ['uTex', 'uMap', 'uRes', 'uM', 'uWind', 'uT', 'uS', 'uAsp', 'uMOn', 'uLd', 'uCup', 'uRip'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
   for (let i = 0; i < 6; i++) ripples.push([0, 0, -99, 0]);
   return true;
 }
@@ -222,7 +237,7 @@ function addRipple(ux, uy, s = 1) {   // image uv
 function screenToImg(px, py) {
   const r = stage.getBoundingClientRect();
   const sx = (px - r.left) / r.width, sy = 1 - (py - r.top) / r.height;
-  const z = 1 + Math.pow(state.heroP, 2.4) * 8;
+  const z = zoomOf(state.dive);
   let ux = map.ax + sx * map.bx, uy = map.ay + sy * map.by;
   ux = CUP.x + (ux - CUP.x) / z; uy = CUP.y + (uy - CUP.y) / z;
   return [ux, uy];
@@ -230,6 +245,11 @@ function screenToImg(px, py) {
 function inCoffee(ux, uy) {
   const dx = (ux - CUP.x) * IMG.w / IMG.h, dy = uy - CUP.y;
   return Math.hypot(dx, dy) < CUP.r * 0.92;
+}
+// šálek i s okrajem (vnější hrana ~1,3× poloměr kávy, změřeno na obou fotkách) + kousek rezervy pro prst
+function onCup(ux, uy) {
+  const dx = (ux - CUP.x) * IMG.w / IMG.h, dy = uy - CUP.y;
+  return Math.hypot(dx, dy) < CUP.r * (coarse ? 1.42 : 1.34);
 }
 const t0 = performance.now() / 1000;
 let heroVisible = true;
@@ -244,7 +264,8 @@ function frame() {
     gl.uniform2f(U.uM, mouse.x, mouse.y);
     gl.uniform2f(U.uWind, wind.x, wind.y);
     gl.uniform1f(U.uT, t);
-    gl.uniform1f(U.uS, state.heroP);
+    gl.uniform1f(U.uS, state.dive);
+    gl.uniform1f(U.uLd, SRC[srcKey].light || 1);
     gl.uniform1f(U.uAsp, IMG.w / IMG.h);
     gl.uniform1f(U.uMOn, mouse.on);
     gl.uniform3f(U.uCup, CUP.x, CUP.y, CUP.r);
@@ -272,19 +293,27 @@ stage.addEventListener('pointermove', e => {
   mouse.x = nx; mouse.y = ny;
   pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top; pointer.on = true;
 }, { passive: true });
-stage.addEventListener('pointerleave', () => { mouse.tOn = 0; pointer.on = false; });
-stage.addEventListener('pointerdown', e => {
+stage.addEventListener('pointerleave', () => { mouse.tOn = 0; pointer.on = false; stage.style.cursor = ''; });
+stage.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  const [ux, uy] = screenToImg(e.clientX, e.clientY);
+  stage.style.cursor = onCup(ux, uy) && !e.target.closest('a,button') ? 'pointer' : '';
+}, { passive: true });
+// jen ťuknutí na šálek (Z 16. 11.: „klikání jen když kliknu na hrníček, ne mimo“); click, ne pointerdown,
+// aby vlnku nespustil každý tah prstem při rolování
+stage.addEventListener('click', e => {
   if (e.target.closest('a,button')) return;
   const [ux, uy] = screenToImg(e.clientX, e.clientY);
+  if (!onCup(ux, uy)) return;
   lastTap = performance.now() / 1000 - t0;
   if (inCoffee(ux, uy)) addRipple(ux, uy, 1);
   else {
-    // ťuk mimo kávu: vlnka přijde od okraje nejbližšího místa
+    // ťuk na okraj šálku: vlnka přijde od nejbližšího místa u okraje kávy
     const dx = (ux - CUP.x) * IMG.w / IMG.h, dy = uy - CUP.y, L = Math.hypot(dx, dy) || 1;
     const rr = CUP.r * 0.88;
-    addRipple(CUP.x + dx / L * rr * IMG.h / IMG.w, CUP.y + dy / L * rr, 0.7);
-    kickBeans(e.clientX, e.clientY);
+    addRipple(CUP.x + dx / L * rr * IMG.h / IMG.w, CUP.y + dy / L * rr, 0.8);
   }
+  kickBeans(e.clientX, e.clientY);         // zrnka kolem šálku nadskočí
 });
 
 /* ---------- zrnka kolem šálku ---------- */
@@ -308,8 +337,8 @@ function placeBeans() {
   const portrait = srcKey === 'port';
   const rnd = mulberry(11);
   beans.forEach((b, i) => {
-    // na šířku: jen pravá polovina kruhu (vlevo je text); na výšku: horní tři čtvrtiny
-    const span = portrait ? [-200, 20] : [-110, 110];
+    // na šířku: jen pravá polovina kruhu (vlevo je text); na výšku: boky a spodek (nahoře je text)
+    const span = portrait ? [-45, 225] : [-110, 110];
     const ang = (span[0] + (span[1] - span[0]) * ((i + rnd() * .7) / beans.length)) * Math.PI / 180;
     const d = cupScreen.r * (1.75 + rnd() * (portrait ? .8 : 1.2));
     const vw = stage.clientWidth, vh = stage.clientHeight;
@@ -326,7 +355,7 @@ function kickBeans(px, py) {
 }
 function updateBeans() {
   if (!beans.length || !heroVisible) return;
-  const t = performance.now() / 1000, p = state.heroP;
+  const t = performance.now() / 1000, p = state.dive;
   beans.forEach(b => {
     // odpuzování kurzorem
     if (pointer.on) {
@@ -338,24 +367,37 @@ function updateBeans() {
     b.ox += b.vx; b.oy += b.vy;
     b.rs *= 0.97; b.rot += b.rs * 0.016 + Math.sin(t * .6 + b.ph) * .05;
     // při ponoru zrnka ujíždějí ven z obrazu (paralaxa)
-    const ex = (b.hx - cupScreen.x) * (1 + p * p * 6 * b.depth), ey = (b.hy - cupScreen.y) * (1 + p * p * 6 * b.depth);
+    const ex = (b.hx - cupHome.x) * (1 + p * p * 6 * b.depth), ey = (b.hy - cupHome.y) * (1 + p * p * 6 * b.depth);
     const x = cupScreen.x + ex + b.ox - b.s / 2, y = cupScreen.y + ey + b.oy - b.s / 2 + Math.sin(t * .8 + b.ph) * 1.5;
     const sc = 1 + p * p * 3 * b.depth;
-    b.el.style.opacity = clamp(1 - p * 2.2, 0, 1).toFixed(3);
+    b.el.style.opacity = clamp(1 - p * 1.8, 0, 1).toFixed(3);
     b.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${b.rot.toFixed(1)}deg) scale(${sc.toFixed(3)})`;
   });
 }
 function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
+/* Z 16. 11.: přechod „na začátku cuká“ a „mizí text dole“. Text už nehýbe skript (na telefonu jel o snímek
+   za prstem) ani nemizí: je to obyčejný obsah stránky a odjede nahoru s ní. Ponor do kávy začne, až je
+   text skoro pryč, takže se nikdy nepotkají. */
+let diveFrom = .3;
+const measureDive = () => {
+  const range = hero.offsetHeight - innerHeight, navH = nav.offsetHeight;
+  const gone = heroCopy.offsetTop + heroCopy.offsetHeight * .55 - navH;   // px posunu, kdy je víc než půlka textu pryč
+  diveFrom = clamp(gone / Math.max(range, 1), .12, .55);
+};
+measureDive();
 ScrollTrigger.create({
   trigger: hero, start: 'top top', end: 'bottom bottom', scrub: true,
+  onRefresh: measureDive,
   onUpdate: s => {
-    state.heroP = s.progress;
     const p = s.progress;
-    heroCopy.style.opacity = clamp(1 - p * 3.2, 0, 1);
-    heroCopy.style.transform = innerWidth < 641 ? `translateY(${(-p * 120).toFixed(1)}px)` : `translateY(calc(-44% - ${(p * 160).toFixed(1)}px))`;
-    heroDark.style.opacity = smooth(clamp((p - .7) / .24, 0, 1));
-    nav.classList.toggle('is-dark-hero', p > .55 && p < 1);
+    state.heroP = p;
+    state.dive = clamp((p - diveFrom) / (1 - diveFrom), 0, 1);
+    panCup();
+    heroDark.style.opacity = smooth(clamp((state.dive - .72) / .26, 0, 1));
+    nav.classList.toggle('is-dark-hero', state.dive > .45 && p < 1);
+    const np = scrollY > 8 && state.dive <= .45;
+    if (np !== navPaper) { navPaper = np; setNav(); }
   }
 });
 // 'top bottom': nahoře na stránce (scroll 0) je hero pořád „vidět“ — s 'top top' tam po návratu zamrzl
@@ -765,5 +807,5 @@ ScrollTrigger.create({ trigger: '.foot', start: 'top 64px', end: 'bottom top', t
 addEventListener('load', () => { document.documentElement.classList.add('ready'); ScrollTrigger.refresh(); });
 setTimeout(() => document.documentElement.classList.add('ready'), 2500);
 
-window.__state = () => ({ heroP: +state.heroP.toFixed(3), gl: state.gl, ripples: state.ripples, heat: state.heat, path: state.path, step: state.step, cart: state.cart || 0, brew: state.brew, scroll: Math.round(scrollY), nav: nav.className });
+window.__state = () => ({ heroP: +state.heroP.toFixed(3), gl: state.gl, ripples: state.ripples, heat: state.heat, path: state.path, step: state.step, cart: state.cart || 0, brew: state.brew, scroll: Math.round(scrollY), nav: nav.className, cup: [cupScreen.x, cupScreen.y, cupScreen.r].map(Math.round) });
 })();

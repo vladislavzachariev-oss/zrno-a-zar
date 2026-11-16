@@ -49,7 +49,7 @@ em{font-style:italic}
 @media (max-aspect-ratio:9/10){.hero__fallback{object-position:50% 50%}}
 .no-gl .hero__gl{display:none}
 .no-gl .hero__fallback{display:block}
-.hero__copy{position:absolute;left:var(--pad);top:50%;transform:translateY(-44%);max-width:min(560px,44vw);will-change:transform,opacity}
+.hero__copy{position:absolute;z-index:2;left:var(--pad);top:50vh;transform:translateY(-44%);max-width:min(560px,44vw)}
 .eyebrow{font:600 12px/1.4 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--terra)}
 .hero__title{margin-top:22px;font:300 clamp(54px,7.4vw,118px)/.92 var(--serif);letter-spacing:-.03em;font-variation-settings:"SOFT" 100,"WONK" 0}
 .hero__title em{font-weight:300;font-variation-settings:"SOFT" 100,"WONK" 1;color:var(--terra)}
@@ -202,7 +202,7 @@ em{font-style:italic}
   .cart span{display:none}
   .cart{padding:6px}
   .hero{height:220vh}
-  .hero__copy{left:16px;right:16px;top:auto;bottom:34px;bottom:calc(34px + 100lvh - 100svh);transform:none;max-width:none}
+  .hero__copy{left:16px;right:16px;top:clamp(84px,12svh,120px);transform:none;max-width:none}
   .hero__title{font-size:clamp(46px,13vw,60px)}
   .hero__lead{font-size:15px;max-width:330px}
   .hero__cta{margin-top:22px}
