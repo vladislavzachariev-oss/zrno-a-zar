@@ -344,6 +344,8 @@ function placeBeans() {
     const vw = stage.clientWidth, vh = stage.clientHeight;
     b.hx = clamp(cupScreen.x + Math.cos(ang) * d * (portrait ? 1 : 1.15), 24, vw - 24 - b.s);
     b.hy = clamp(cupScreen.y + Math.sin(ang) * d, 96, vh - 30 - b.s);
+    // nízké okno: ořez posune zrnko na okraj šálku → skrýt (16. 11., 844×390 zrnka „přilepená“ na šálku)
+    b.off = Math.hypot(b.hx - cupScreen.x, b.hy - cupScreen.y) < cupScreen.r * 1.25 + b.s * .45;
   });
 }
 function kickBeans(px, py) {
@@ -370,7 +372,7 @@ function updateBeans() {
     const ex = (b.hx - cupHome.x) * (1 + p * p * 6 * b.depth), ey = (b.hy - cupHome.y) * (1 + p * p * 6 * b.depth);
     const x = cupScreen.x + ex + b.ox - b.s / 2, y = cupScreen.y + ey + b.oy - b.s / 2 + Math.sin(t * .8 + b.ph) * 1.5;
     const sc = 1 + p * p * 3 * b.depth;
-    b.el.style.opacity = clamp(1 - p * 1.8, 0, 1).toFixed(3);
+    b.el.style.opacity = b.off ? '0' : clamp(1 - p * 1.8, 0, 1).toFixed(3);
     b.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${b.rot.toFixed(1)}deg) scale(${sc.toFixed(3)})`;
   });
 }
