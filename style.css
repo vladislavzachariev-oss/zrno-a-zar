@@ -218,6 +218,14 @@ em{font-style:italic}
   .tabs button{padding:9px 13px;font-size:13px}
   .foot{padding-left:16px;padding-right:16px}
 }
+/* telefon na šířku / nízké okno: text pod lištu, ne přes logo (16. 11.: 844×390 eyebrow na logu, tlačítko useknuté) */
+@media (max-height:520px) and (min-aspect-ratio:1/1){
+  .hero__copy{top:78px;transform:none;max-width:min(470px,50vw)}
+  .hero__title{margin-top:12px;font-size:clamp(38px,11.5vh,56px)}
+  .hero__lead{margin-top:14px;font-size:14px;line-height:1.5;max-width:360px}
+  .hero__cta{margin-top:18px}
+  .hero__cta .btn{padding:12px 22px}
+}
 @media (prefers-reduced-motion:reduce){
   .hero__title .w{transition:none}
 }
