@@ -191,9 +191,24 @@ em{font-style:italic}
   .nav__links{display:none}
   .heat__pin{grid-template-columns:1fr;padding-top:120px}
   .path__pin{grid-template-columns:1fr;align-content:start;align-items:start}   /* obrázek drží nahoře; rozbalený krok pod ním s ním nehýbe */
-  .path__img{grid-row:1;width:min(100%,62vh)}
+  /* kruh podle výšky okna: pod ním se musí vejít nadpis a 4 kroky i s rozbaleným textem (18. 11.: Z na mobilu „dole useknutý“, krok 04 pod okrajem) */
+  .path__img{grid-row:1;width:min(100%,62vh,max(140px,calc(100svh - 600px)))}
   .bags{grid-template-columns:1fr 1fr}
   .brew{grid-template-columns:1fr}
+}
+/* tablet / telefon na šířku: obrázek vedle kroků, ne nad nimi */
+@media (max-width:1024px) and (min-aspect-ratio:1/1){
+  .path__pin{grid-template-columns:1fr 1.1fr;align-content:center;align-items:center}
+  .path__img{grid-row:auto;width:min(100%,calc(100svh - 150px))}
+}
+@media (max-height:520px) and (min-aspect-ratio:1/1){
+  .path__pin{padding:82px var(--pad) 12px;gap:28px}
+  .path ol{margin-top:10px}
+  .path li{padding:7px 0}
+  .path li h3{font-size:22px}
+  .path li p{font-size:13px}
+  .path li.is-on p{margin-top:2px}
+  .path__img{width:min(100%,calc(100svh - 112px))}
 }
 @media (max-width:640px){
   body{font-size:16px}
@@ -210,6 +225,7 @@ em{font-style:italic}
   .curve__read{gap:28px}
   .path__pin{padding:90px 16px 40px;gap:20px}
   .path li p{font-size:14px}
+  .path__img{width:min(100%,62vh,max(140px,calc(100svh - 480px)))}
   .beans{padding-left:16px;padding-right:16px}
   .bags{grid-template-columns:1fr;gap:56px}
   .brew{padding-left:16px;padding-right:16px}
