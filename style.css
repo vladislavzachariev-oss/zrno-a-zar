@@ -242,6 +242,6 @@ em{font-style:italic}
   .hero__cta{margin-top:18px}
   .hero__cta .btn{padding:12px 22px}
 }
-@media (prefers-reduced-motion:reduce){
+@media (min-width:100000px){
   .hero__title .w{transition:none}
 }

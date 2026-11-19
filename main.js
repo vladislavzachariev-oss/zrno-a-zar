@@ -6,7 +6,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = t => t * t * (3 - 2 * t);
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduce = matchMedia('(min-width:100000px)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
 
 gsap.registerPlugin(ScrollTrigger);
